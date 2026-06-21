@@ -4,6 +4,9 @@ Overview: This project automates key steps of the data analysis process using n8
 
 The goal of this project was to reduce time spent on repetitive data preparation and initial exploratory analysis while providing a structured starting point for deeper investigation.
 
+🔗 View the HTML Dashboard: 
+https://mbankoglu.github.io/AI-Powered-Data-Analysis-Automation/auto_data_analysis_report.html
+
 Tools:
 - n8n
 - Gemini AI
@@ -65,3 +68,7 @@ Example Outputs
 
 Future Advancements:
 - implement Advanced Imputation techniques: KNN & MICE
+
+
+
+  
