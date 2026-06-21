@@ -1,0 +1,943 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Automated Data Analysis Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: Inter, Arial, sans-serif;
+    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 45%, #fdf2f8 100%);
+    color: #111827;
+    margin: 0;
+    padding: 40px;
+  }
+
+  .container {
+    max-width: 1180px;
+    margin: auto;
+  }
+
+  .hero {
+    background: #111827;
+    color: white;
+    border-radius: 24px;
+    padding: 36px;
+    margin-bottom: 26px;
+    box-shadow: 0 20px 45px rgba(17, 24, 39, 0.22);
+  }
+
+  .hero h1 {
+    margin: 0 0 10px;
+    font-size: 34px;
+  }
+
+  .hero p {
+    margin: 0;
+    color: #d1d5db;
+    font-size: 15px;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+  }
+
+  .badge {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+
+  .kpi-card, section {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+  }
+
+  .kpi-card {
+    padding: 22px;
+  }
+
+  .kpi-label {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 10px;
+  }
+
+  .kpi-value {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+
+  .kpi-sub {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  section {
+    padding: 26px;
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    margin-top: 0;
+    font-size: 22px;
+  }
+
+  h3 {
+    margin-top: 24px;
+    color: #1f2937;
+  }
+
+  .health {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+
+  .health-box {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 18px;
+    border: 1px solid #e5e7eb;
+  }
+
+  .health-number {
+    font-size: 26px;
+    font-weight: 800;
+  }
+
+  .health-label {
+    color: #64748b;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  th, td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  tr:hover td {
+    background: #f8fafc;
+  }
+
+  .range-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    position: relative;
+    min-width: 120px;
+  }
+
+  .range-dot {
+    width: 14px;
+    height: 14px;
+    background: #2563eb;
+    border-radius: 50%;
+    position: absolute;
+    top: -3px;
+    transform: translateX(-50%);
+  }
+
+  .chart-wrap {
+    height: 380px;
+  }
+
+  .dual-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .chart-card {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 18px;
+  }
+
+  .chart-card h3 {
+    margin-top: 0;
+    font-size: 16px;
+    color: #334155;
+  }
+
+  .small-chart {
+    height: 320px;
+  }
+
+  .ai-box {
+    background: #0f172a;
+    color: #e5e7eb;
+    border-radius: 18px;
+    padding: 28px;
+    line-height: 1.5;
+    font-size: 17px;
+    text-align: justify;
+  }
+
+  .ai-box h2 {
+    color: white;
+    margin-top: 25px;
+    margin-bottom: 15px;
+  }
+
+  .ai-box h3 {
+    color: #93c5fd;
+    margin-top: 22px;
+    margin-bottom: 12px;
+  }
+
+  .ai-box h4 {
+    color: #60a5fa;
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-left: 4px solid #3b82f6;
+    padding-left: 10px;
+  }
+
+  .ai-box strong {
+    color: #bfdbfe;
+    font-weight: 700;
+  }
+
+  .footer {
+    color: #64748b;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 30px;
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>Automated Data Analysis Report</h1>
+    <p>Generated with n8n, automated data cleaning, statistical analysis, Gemini AI, and HTML reporting.</p>
+
+    <div class="badge-row">
+      <div class="badge">Rows: 64,374</div>
+      <div class="badge">Columns: 12</div>
+      <div class="badge">Missing Values: 0</div>
+      <div class="badge">Numeric Metrics: 9</div>
+      <div class="badge">Categorical Variables: 3</div>
+    </div>
+  </div>
+
+  <section>
+    <h2>Dataset Overview</h2>
+    <p><strong>Columns:</strong> Customerid, Age, Gender, Tenure, Usage Frequency, Support Calls, Payment Delay, Subscription Type, Contract Length, Total Spend, Last Interaction, Churn</p>
+  </section>
+
+  <div class="grid">
+    
+  <div class="kpi-card">
+    <div class="kpi-label">Customerid</div>
+    <div class="kpi-value">32187.50</div>
+    <div class="kpi-sub">Median 32187.50 · Range 1–64,374</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">Age</div>
+    <div class="kpi-value">41.97</div>
+    <div class="kpi-sub">Median 42 · Range 18–65</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">Tenure</div>
+    <div class="kpi-value">31.99</div>
+    <div class="kpi-sub">Median 33 · Range 1–60</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">Usage Frequency</div>
+    <div class="kpi-value">15.08</div>
+    <div class="kpi-sub">Median 15 · Range 1–30</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">Support Calls</div>
+    <div class="kpi-value">5.40</div>
+    <div class="kpi-sub">Median 6 · Range 0–10</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">Payment Delay</div>
+    <div class="kpi-value">17.13</div>
+    <div class="kpi-sub">Median 19 · Range 0–30</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">Total Spend</div>
+    <div class="kpi-value">541.02</div>
+    <div class="kpi-sub">Median 534 · Range 100–1,000</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">Last Interaction</div>
+    <div class="kpi-value">15.50</div>
+    <div class="kpi-sub">Median 15 · Range 1–30</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-label">Churn</div>
+    <div class="kpi-value">0.47</div>
+    <div class="kpi-sub">Median 0 · Range 0–1</div>
+  </div>
+
+  </div>
+
+  <section>
+    <h2>Data Health Check</h2>
+    <div class="health">
+      <div class="health-box">
+        <div class="health-number">64,374</div>
+        <div class="health-label">Total rows analyzed</div>
+      </div>
+      <div class="health-box">
+        <div class="health-number">12</div>
+        <div class="health-label">Total columns detected</div>
+      </div>
+      <div class="health-box">
+        <div class="health-number">0</div>
+        <div class="health-label">Missing values found</div>
+      </div>
+      <div class="health-box">
+        <div class="health-number">9</div>
+        <div class="health-label">Numeric metrics summarized</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Numeric Visual Summary</h2>
+    <div class="chart-wrap">
+      <canvas id="meanChart"></canvas>
+    </div>
+  </section>
+
+  
+      <section>
+        <h2>Gender Distribution</h2>
+        <div class="dual-chart-grid">
+          <div class="chart-card">
+            <h3>Sample Distribution</h3>
+            <div class="chart-wrap small-chart">
+              <canvas id="catBarChart0"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Category Share</h3>
+            <div class="chart-wrap small-chart">
+              <canvas id="catPieChart0"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+      <section>
+        <h2>Subscription Type Distribution</h2>
+        <div class="dual-chart-grid">
+          <div class="chart-card">
+            <h3>Sample Distribution</h3>
+            <div class="chart-wrap small-chart">
+              <canvas id="catBarChart1"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Category Share</h3>
+            <div class="chart-wrap small-chart">
+              <canvas id="catPieChart1"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+      <section>
+        <h2>Contract Length Distribution</h2>
+        <div class="dual-chart-grid">
+          <div class="chart-card">
+            <h3>Sample Distribution</h3>
+            <div class="chart-wrap small-chart">
+              <canvas id="catBarChart2"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Category Share</h3>
+            <div class="chart-wrap small-chart">
+              <canvas id="catPieChart2"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+
+  <section>
+    <h2>Numeric Summary</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Count</th>
+          <th>Mean</th>
+          <th>Median</th>
+          <th>Min</th>
+          <th>Max</th>
+          <th>Mean Position</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+    <tr>
+      <td>Customerid</td>
+      <td>64,374</td>
+      <td>32187.50</td>
+      <td>32187.50</td>
+      <td>1</td>
+      <td>64,374</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:50%"></div>
+        </div>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>Age</td>
+      <td>64,374</td>
+      <td>41.97</td>
+      <td>42</td>
+      <td>18</td>
+      <td>65</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:51%"></div>
+        </div>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>Tenure</td>
+      <td>64,374</td>
+      <td>31.99</td>
+      <td>33</td>
+      <td>1</td>
+      <td>60</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:52.52542372881356%"></div>
+        </div>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>Usage Frequency</td>
+      <td>64,374</td>
+      <td>15.08</td>
+      <td>15</td>
+      <td>1</td>
+      <td>30</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:48.55172413793103%"></div>
+        </div>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>Support Calls</td>
+      <td>64,374</td>
+      <td>5.40</td>
+      <td>6</td>
+      <td>0</td>
+      <td>10</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:54%"></div>
+        </div>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>Payment Delay</td>
+      <td>64,374</td>
+      <td>17.13</td>
+      <td>19</td>
+      <td>0</td>
+      <td>30</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:57.099999999999994%"></div>
+        </div>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>Total Spend</td>
+      <td>64,374</td>
+      <td>541.02</td>
+      <td>534</td>
+      <td>100</td>
+      <td>1,000</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:49.00222222222222%"></div>
+        </div>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>Last Interaction</td>
+      <td>64,374</td>
+      <td>15.50</td>
+      <td>15</td>
+      <td>1</td>
+      <td>30</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:50%"></div>
+        </div>
+      </td>
+    </tr>
+  
+    <tr>
+      <td>Churn</td>
+      <td>64,374</td>
+      <td>0.47</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>
+        <div class="range-bar">
+          <div class="range-dot" style="left:47%"></div>
+        </div>
+      </td>
+    </tr>
+  
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Missing Values</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Missing Count</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+  <tr>
+    <td>Customerid</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Age</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Gender</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Tenure</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Usage Frequency</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Support Calls</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Payment Delay</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Subscription Type</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Contract Length</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Total Spend</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Last Interaction</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+  <tr>
+    <td>Churn</td>
+    <td>0</td>
+    <td>Clean</td>
+  </tr>
+
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Categorical Summary</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Category</th>
+          <th>Count</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+    <tr>
+      <td>Gender</td>
+      <td>Female</td>
+      <td>34,353</td>
+      <td>53.36%</td>
+    </tr>
+  
+    <tr>
+      <td>Gender</td>
+      <td>Male</td>
+      <td>30,021</td>
+      <td>46.64%</td>
+    </tr>
+  
+    <tr>
+      <td>Subscription Type</td>
+      <td>Standard</td>
+      <td>21,502</td>
+      <td>33.40%</td>
+    </tr>
+  
+    <tr>
+      <td>Subscription Type</td>
+      <td>Basic</td>
+      <td>21,451</td>
+      <td>33.32%</td>
+    </tr>
+  
+    <tr>
+      <td>Subscription Type</td>
+      <td>Premium</td>
+      <td>21,421</td>
+      <td>33.28%</td>
+    </tr>
+  
+    <tr>
+      <td>Contract Length</td>
+      <td>Monthly</td>
+      <td>22,130</td>
+      <td>34.38%</td>
+    </tr>
+  
+    <tr>
+      <td>Contract Length</td>
+      <td>Annual</td>
+      <td>21,410</td>
+      <td>33.26%</td>
+    </tr>
+  
+    <tr>
+      <td>Contract Length</td>
+      <td>Quarterly</td>
+      <td>20,834</td>
+      <td>32.36%</td>
+    </tr>
+  
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>AI Analytical Insights</h2>
+    <div class="ai-box"><h2>Analytical Report on Customer Dataset</h2><br><br><h3>1. Executive Summary</h3><br><br>This dataset appears to measure customer behavior and characteristics, likely related to a subscription-based service. It includes demographic information (age, gender), customer engagement metrics (tenure, usage frequency, last interaction), service interaction data (support calls, payment delay), financial information (total spend), subscription details (subscription type, contract length), and a crucial indicator of customer retention (churn). The dataset comprises 64,374 records and covers 12 distinct attributes.<br><br><h3>2. Data Quality Assessment</h3><br><br>The dataset exhibits excellent data quality with no missing values across all 12 columns. This complete dataset is a significant advantage for analysis. The presence of 64,374 rows suggests a sufficiently large sample size to draw robust conclusions and identify meaningful patterns. The range of values for numeric metrics (e.g., age from 18 to 65, tenure from 1 to 60 months) indicates that the data captures a diverse customer base. The categorical variables (gender, subscription type, contract length) are well-distributed, with each category having a substantial number of observations.<br><br><h3>3. Metric-Level Analysis</h3><br><br><h4>Numeric Columns:</h4><br><br><li><h4>customerid:</h4> The mean and median of `customerid` are identical (32187.5), which is expected for sequentially assigned IDs. The min (1) and max (64374) confirm the range of unique customer identifiers. This column is primarily for identification and does not offer analytical insights into customer behavior.</li>
+<li><h4>age:</h4> The average age of customers is approximately 42 years, with a median of 42 years. The age range spans from 18 to 65. This suggests the customer base is predominantly in the adult working population.</li>
+<li><h4>tenure:</h4> The mean tenure is around 32 months, with a median of 33 months. The tenure ranges from 1 to 60 months, indicating a mix of new and long-term customers. The proximity of mean and median suggests a relatively symmetrical distribution of tenure.</li>
+<li><strong>usage_frequency:</strong> On average, customers use the service 15 times per period, with a median of 15. The frequency ranges from 1 to 30. This suggests a moderate level of engagement across the customer base.</li>
+<li><strong>support_calls:</strong> The average number of support calls is 5.4, with a median of 6. The range is from 0 to 10 calls. This indicates that while many customers have few or no issues, a portion of the customer base requires significant support.</li>
+<li><strong>payment_delay:</strong> The average payment delay is approximately 17 days, with a median of 19 days. The range is from 0 to 30 days. This suggests a notable proportion of customers experience delays in their payments, with some consistently delaying payments up to a month.</li>
+<li><strong>total_spend:</strong> The average total spend is $541.02, with a median of $534. The spend ranges from $100 to $1000. The mean and median are close, indicating a somewhat symmetric distribution of total spend.</li>
+<li><strong>last_interaction:</strong> The mean and median for last interaction are both 15.5 and 15 respectively. The range is from 1 to 30. This metric likely represents the number of days since the last customer interaction, suggesting a mix of recent and older interactions within the observed period.</li>
+<li><h4>churn:</h4> The mean `churn` is 0.47, with a median of 0. The range is 0 to 1, indicating that `churn` is a binary variable (0 for not churned, 1 for churned). The mean of 0.47 suggests that approximately 47% of customers in this dataset have churned. The median of 0 indicates that more than half of the customers have not churned.</li><br><br><h3>4. Relationship Hypotheses</h3><br><br><li><h4>Tenure and Total Spend:</h4> Longer tenure might be associated with higher total spend.</li>
+<li><h4>Usage Frequency and Total Spend:</h4> Higher usage frequency could correlate with higher total spend.</li>
+<li><h4>Support Calls and Churn:</h4> Customers with a higher number of support calls may be more likely to churn.</li>
+<li><h4>Payment Delay and Churn:</h4> Customers with significant payment delays might have a higher propensity to churn.</li>
+<li><h4>Age and Usage Frequency:</h4> Different age groups might exhibit varying levels of usage frequency.</li>
+<li><h4>Contract Length and Churn:</h4> Customers on shorter contract lengths (e.g., Monthly) might have a higher churn rate compared to those on longer contracts (e.g., Annual).</li>
+<li><h4>Subscription Type and Total Spend:</h4> Different subscription types (Basic, Standard, Premium) are likely to influence total spend.</li><br><br><h3>5. Possible Business or Operational Insights</h3><br><br><li>The average age of 42 with a range up to 65 suggests a mature customer base, which might have different service needs and preferences compared to a younger demographic.</li>
+<li>The moderate average usage frequency (15) indicates that while customers are engaged, there might be opportunities to increase utilization of the service.</li>
+<li>The average of 5.4 support calls suggests that customer support is a significant touchpoint. High call volumes could indicate underlying issues with the product or service.</li>
+<li>The average payment delay of 17 days is a considerable concern. This could imply cash flow challenges for the business or indicate customer dissatisfaction or difficulties in managing their accounts.</li>
+<li>The `churn` rate of approximately 47% is very high and warrants immediate attention. This suggests that a substantial portion of the customer base is not retained.</li><br><br><h3>6. Risk Signals</h3><br><br><li><h4>High Churn Rate:</h4> The `churn` mean of 0.47 is a significant warning sign, indicating that almost half of the customers are leaving.</li>
+<li><h4>High Support Calls:</h4> An average of 5.4 `support_calls` suggests that a considerable number of customers are experiencing issues significant enough to warrant reaching out to support. This can be a precursor to churn.</li>
+<li><h4>Payment Delays:</h4> The `payment_delay` metric, with a mean of 17.13 days, is a clear operational risk. Consistent delays can impact revenue, lead to increased administrative costs for collections, and may be symptomatic of customer dissatisfaction or financial strain, which can contribute to churn.</li><br><br><h3>7. Recommended Next Analyses</h3><br><br><li><h4>Correlation Analysis:</h4> Calculate correlation coefficients between numeric variables to quantify the relationships hypothesized in Section 4 (e.g., `tenure` vs. `total_spend`, `support_calls` vs. `churn`, `payment_delay` vs. `churn`).</li>
+<li><h4>Categorical-Numeric Analysis:</h4> Analyze the average `churn`, `total_spend`, `usage_frequency`, and `support_calls` for each `subscription_type`, `contract_length`, and `gender`. This will reveal how these categories influence key metrics. For example, compare `churn` rates across different `contract_length` categories.</li>
+<li><h4>Visualization:</h4></li>
+    *   Create histograms for `age`, `tenure`, `usage_frequency`, `support_calls`, `payment_delay`, and `total_spend` to understand their distributions.
+    *   Generate box plots to visualize `support_calls` and `payment_delay` across different `subscription_type` and `contract_length` categories.
+    *   Use bar charts to show the `churn` rate per `gender`, `subscription_type`, and `contract_length`.
+<li><h4>Regression Analysis:</h4> Build predictive models (e.g., logistic regression) to understand the drivers of `churn`. This will help identify which factors are most strongly associated with customers leaving.</li>
+<li><h4>Segmentation:</h4> Group customers based on combinations of their attributes (e.g., by `subscription_type` and `contract_length`, or by `age` and `usage_frequency`) to identify high-risk or high-value segments. Analyze `churn` rates within these segments.</li>
+<li><h4>Time Series Analysis (if applicable):</h4> If `last_interaction` can be mapped to specific dates or periods, analyze trends in `usage_frequency`, `support_calls`, `payment_delay`, and `churn` over time to identify seasonal patterns or emerging issues.</li><br><br><h3>8. Final Analyst Takeaway</h3><br><br>This dataset reveals a customer base where a significant portion is experiencing payment delays and a high rate of churn. Understanding the interplay between customer engagement, service interactions, and subscription details is crucial to address these critical issues and improve customer retention.</div>
+  </section>
+
+  <div class="footer">
+    Automated CSV/XLSX Data Analysis Pipeline · Built with n8n
+  </div>
+
+</div>
+
+<script>
+const meanLabels = ["Customerid","Age","Tenure","Usage Frequency","Support Calls","Payment Delay","Total Spend","Last Interaction","Churn"];
+const meanValues = [32187.5,41.97,31.99,15.08,5.4,17.13,541.02,15.5,0.47];
+
+new Chart(document.getElementById("meanChart"), {
+  type: "bar",
+  data: {
+    labels: meanLabels,
+    datasets: [{
+      label: "Mean value",
+      data: meanValues,
+      borderRadius: 10
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      title: {
+        display: true,
+        text: "Average Value by Numeric Metric"
+      }
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
+
+
+      new Chart(document.getElementById("catBarChart0"), {
+        type: "bar",
+        data: {
+          labels: ["Female","Male"],
+          datasets: [{
+            label: "Count",
+            data: [34353,30021],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: "Gender Count Distribution"
+            }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      new Chart(document.getElementById("catPieChart0"), {
+        type: "pie",
+        data: {
+          labels: ["Female","Male"],
+          datasets: [{
+            label: "Share",
+            data: [34353,30021]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: "Gender Percentage Share"
+            }
+          }
+        }
+      });
+    
+      new Chart(document.getElementById("catBarChart1"), {
+        type: "bar",
+        data: {
+          labels: ["Standard","Basic","Premium"],
+          datasets: [{
+            label: "Count",
+            data: [21502,21451,21421],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: "Subscription Type Count Distribution"
+            }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      new Chart(document.getElementById("catPieChart1"), {
+        type: "pie",
+        data: {
+          labels: ["Standard","Basic","Premium"],
+          datasets: [{
+            label: "Share",
+            data: [21502,21451,21421]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: "Subscription Type Percentage Share"
+            }
+          }
+        }
+      });
+    
+      new Chart(document.getElementById("catBarChart2"), {
+        type: "bar",
+        data: {
+          labels: ["Monthly","Annual","Quarterly"],
+          datasets: [{
+            label: "Count",
+            data: [22130,21410,20834],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: "Contract Length Count Distribution"
+            }
+          },
+          scales: {
+            y: { beginAtZero: true }
+          }
+        }
+      });
+
+      new Chart(document.getElementById("catPieChart2"), {
+        type: "pie",
+        data: {
+          labels: ["Monthly","Annual","Quarterly"],
+          datasets: [{
+            label: "Share",
+            data: [22130,21410,20834]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: "Contract Length Percentage Share"
+            }
+          }
+        }
+      });
+    
+</script>
+
+</body>
+</html>

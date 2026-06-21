@@ -1,0 +1,598 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "### Step 1: Load data\n",
+        "height": 720,
+        "width": 628
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "7f6f4c46-98e2-468c-a897-5d6ecd2de192",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "### Step 2: Clean & analyze data\n",
+        "height": 1120,
+        "width": 592,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "17e8c8cc-9ce4-4a44-9994-b21a42a28226",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "### Step 3: Add AI summary\n",
+        "height": 368,
+        "width": 272,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        896,
+        544
+      ],
+      "typeVersion": 1,
+      "id": "c7872bdc-e338-4e86-89c3-27c0c95aea55",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "### Step 4: Report generator\n",
+        "height": 848,
+        "width": 608,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "d3c1375f-8dec-461e-9e4d-d8fb6e383cc6",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "fileSelector": "C:\\Users\\MELISA\\.n8n-files\\Customer Churn Dataset.csv",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -32,
+        160
+      ],
+      "id": "73e16f39-2982-40c8-b989-01a90f97ef29",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        160
+      ],
+      "id": "23080de9-e1df-4e28-8e09-ce01b94c2e27",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        0
+      ],
+      "id": "e7d0af9f-780a-458d-bfae-22600f5c797d",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "95a173af-cb20-457d-85d9-1c2d427b1d7f",
+              "leftValue": "={{ $binary.data.fileExtension }}",
+              "rightValue": "csv",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        112,
+        160
+      ],
+      "id": "615136a2-7b54-4c91-971e-83c83e8257fd",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        288
+      ],
+      "id": "b24b34d0-ed3e-4997-8694-dc58883ad06e",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        656,
+        176
+      ],
+      "id": "a49f20f9-44af-49c7-b2e4-c93c094074a2",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        928,
+        624
+      ],
+      "id": "2677c5e3-0a89-410b-bbfb-aed1707407c7",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "waitBetweenTries": 5
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        768
+      ],
+      "id": "b126e999-5f8e-48f9-8305-99a065197586",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "PQNFe9udjuLxEwe7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const analysis = items[0].json;\n\nconst prompt = `\nYou are a senior data analyst and junior data scientist.\n\nYour task is to analyze the dataset summary deeply and produce a professional analytical report.\n\nIMPORTANT RULES:\n- Only use the information provided below.\n- Do not invent columns, statistics, business context, or missing values.\n- Do not mention any column that is not listed.\n- If the data is too limited for a conclusion, say that clearly.\n- Distinguish between facts, likely patterns, and recommended next analyses.\n- Avoid generic advice. Make the recommendations specific to the columns provided.\n\nAVAILABLE COLUMNS:\n${analysis.columns.join(\", \")}\n\nDATASET STRUCTURE:\n- Rows: ${analysis.row_count}\n- Columns: ${analysis.column_count}\n\nMISSING VALUES:\n${JSON.stringify(analysis.missing_values, null, 2)}\n\nNUMERIC SUMMARY:\n${JSON.stringify(analysis.numeric_summary, null, 2)}\n\nCATEGORICAL SUMMARY:\n${JSON.stringify(analysis.categorical_summary, null, 2)}\n\nPlease produce the following sections:\n\n1. Executive Summary\nBriefly explain what this dataset appears to measure.\n\n2. Data Quality Assessment\nDiscuss missing values, possible limitations, and whether the dataset is large enough for strong conclusions.\n\n3. Metric-Level Analysis\nAnalyze each numeric column. Explain what the mean, median, min, and max suggest.\n\n4. Relationship Hypotheses\nSuggest possible relationships worth testing between variables.\nExample: satisfaction_score may be related to avg_response_time_min or ontime_delivery.\nDo not claim correlation unless correlation was provided.\n\n5. Possible Business or Operational Insights\nExplain what the metrics may imply operationally.\n\n6. Risk Signals\nIdentify possible warning signs, such as high return_rate, slow response time, low satisfaction, or high support tickets.\n\n7. Recommended Next Analyses\nSuggest specific next analytical steps, such as:\n- correlation analysis\n- trend analysis by month\n- regression\n- visualization\n- segmentation\n\n8. Final Analyst Takeaway\nGive a short conclusion in plain English.\n\nRemember:\nOnly use the provided columns and statistics.\nDo not invent fields such as user_id, transaction_amount, product_id, purchase_rate, or product_category.\n`;\n\nreturn [{\n  json: {\n    prompt\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        400
+      ],
+      "id": "bf899275-6370-4757-a0af-26f58fc44c6a",
+      "name": "Prompt Builder"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = items.map(item => item.json);\n\nfunction isMissing(value) {\n  return value === null || value === undefined || value === \"\";\n}\n\nfunction isNumeric(value) {\n  return !isMissing(value) && !isNaN(Number(value));\n}\n\nfunction mean(values) {\n  return values.reduce((a, b) => a + b, 0) / values.length;\n}\n\nfunction median(values) {\n  const sorted = [...values].sort((a, b) => a - b);\n  const mid = Math.floor(sorted.length / 2);\n  return sorted.length % 2\n    ? sorted[mid]\n    : (sorted[mid - 1] + sorted[mid]) / 2;\n}\n\nconst columns = [...new Set(rows.flatMap(row => Object.keys(row)))];\n\nconst missingValues = {};\nconst numericSummary = {};\nconst categoricalSummary = {};\n\nfor (const column of columns) {\n  const values = rows.map(row => row[column]);\n  const nonMissing = values.filter(value => !isMissing(value));\n  const numericValues = nonMissing.filter(isNumeric).map(Number);\n\n  missingValues[column] = values.length - nonMissing.length;\n\n  if (numericValues.length > 0 && numericValues.length >= nonMissing.length * 0.8) {\n    numericSummary[column] = {\n      count: numericValues.length,\n      mean: Number(mean(numericValues).toFixed(2)),\n      median: Number(median(numericValues).toFixed(2)),\n      min: Math.min(...numericValues),\n      max: Math.max(...numericValues)\n    };\n  } else {\n    const counts = {};\n    for (const value of nonMissing) {\n      counts[String(value)] = (counts[String(value)] || 0) + 1;\n    }\n\n    categoricalSummary[column] = Object.entries(counts)\n      .sort((a, b) => b[1] - a[1])\n      .slice(0, 10)\n      .map(([category, count]) => ({\n        category,\n        count,\n        percentage: Number(((count / rows.length) * 100).toFixed(2))\n      }));\n  }\n}\n\nreturn [{\n  json: {\n    report_title: \"Automated Data Analysis Summary\",\n    row_count: rows.length,\n    column_count: columns.length,\n    columns,\n    missing_values: missingValues,\n    numeric_summary: numericSummary,\n    categorical_summary: categoricalSummary\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        176
+      ],
+      "id": "95ee6975-0e11-41ae-b99a-304df899911f",
+      "name": "Data Analysis"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawRows = items.map(item => item.json);\n\nfunction isMissing(value) {\n  if (value === null || value === undefined) return true;\n  if (typeof value === \"string\") {\n    const v = value.trim().toLowerCase();\n    return [\"\", \"na\", \"n/a\", \"null\", \"none\", \"nan\", \"-\", \"--\"].includes(v);\n  }\n  return false;\n}\n\nfunction cleanColumnName(name) {\n  return String(name)\n    .trim()\n    .toLowerCase()\n    .replace(/[^a-zA-Z0-9]+/g, \"_\")\n    .replace(/_+/g, \"_\")\n    .replace(/^_|_$/g, \"\");\n}\n\nfunction cleanText(value) {\n  if (isMissing(value)) return null;\n\n  if (typeof value !== \"string\") return value;\n\n  let cleaned = value.trim();\n\n  // Remove unnecessary symbols at beginning/end only\n  cleaned = cleaned.replace(/^[+\\-*_\\s]+/, \"\");\n  cleaned = cleaned.replace(/[+\\-*_\\s]+$/, \"\");\n\n  // Normalize multiple spaces\n  cleaned = cleaned.replace(/\\s+/g, \" \");\n\n  return cleaned === \"\" ? null : cleaned;\n}\n\nfunction looksNumeric(value) {\n  if (isMissing(value)) return false;\n  if (typeof value === \"number\") return true;\n\n  const cleaned = String(value)\n    .trim()\n    .replace(/,/g, \"\")\n    .replace(/\\$/g, \"\")\n    .replace(/%/g, \"\");\n\n  return cleaned !== \"\" && !isNaN(Number(cleaned));\n}\n\nfunction toNumber(value) {\n  if (isMissing(value)) return null;\n\n  if (typeof value === \"number\") return value;\n\n  const cleaned = String(value)\n    .trim()\n    .replace(/,/g, \"\")\n    .replace(/\\$/g, \"\")\n    .replace(/%/g, \"\");\n\n  return cleaned === \"\" || isNaN(Number(cleaned)) ? null : Number(cleaned);\n}\n\nfunction median(values) {\n  const sorted = [...values].sort((a, b) => a - b);\n  const mid = Math.floor(sorted.length / 2);\n  return sorted.length % 2\n    ? sorted[mid]\n    : (sorted[mid - 1] + sorted[mid]) / 2;\n}\n\nfunction mode(values) {\n  const counts = {};\n  for (const value of values) {\n    const key = String(value);\n    counts[key] = (counts[key] || 0) + 1;\n  }\n\n  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;\n}\n\n// 1. Clean column names and text values\nlet rows = rawRows.map(row => {\n  const cleanedRow = {};\n\n  for (const [key, value] of Object.entries(row)) {\n    const cleanKey = cleanColumnName(key);\n    cleanedRow[cleanKey] = cleanText(value);\n  }\n\n  return cleanedRow;\n});\n\n// 2. Remove completely empty rows\nrows = rows.filter(row =>\n  Object.values(row).some(value => !isMissing(value))\n);\n\n// 3. Detect numeric columns\nconst columns = [...new Set(rows.flatMap(row => Object.keys(row)))];\nconst numericColumns = [];\n\nfor (const column of columns) {\n  const values = rows.map(row => row[column]).filter(value => !isMissing(value));\n  const numericCount = values.filter(looksNumeric).length;\n\n  if (values.length > 0 && numericCount / values.length >= 0.8) {\n    numericColumns.push(column);\n  }\n}\n\n// 4. Convert numeric columns to numbers\nfor (const row of rows) {\n  for (const column of numericColumns) {\n    row[column] = toNumber(row[column]);\n  }\n}\n\n// 5. Impute missing values\nconst imputationLog = {};\n\nfor (const column of columns) {\n  const values = rows.map(row => row[column]).filter(value => !isMissing(value));\n\n  if (values.length === 0) continue;\n\n  let replacement;\n\n  if (numericColumns.includes(column)) {\n    replacement = median(values.map(Number));\n  } else {\n    replacement = mode(values);\n  }\n\n  let count = 0;\n\n  for (const row of rows) {\n    if (isMissing(row[column])) {\n      row[column] = replacement;\n      count++;\n    }\n  }\n\n  if (count > 0) {\n    imputationLog[column] = {\n      missing_values_filled: count,\n      method: numericColumns.includes(column) ? \"median\" : \"mode\",\n      replacement_value: replacement\n    };\n  }\n}\n\n// 6. Remove exact duplicate rows\nconst seen = new Set();\nconst deduplicatedRows = [];\n\nfor (const row of rows) {\n  const signature = JSON.stringify(row);\n\n  if (!seen.has(signature)) {\n    seen.add(signature);\n    deduplicatedRows.push(row);\n  }\n}\n\nconst cleaningSummary = {\n  original_row_count: rawRows.length,\n  cleaned_row_count: deduplicatedRows.length,\n  duplicate_rows_removed: rows.length - deduplicatedRows.length,\n  numeric_columns_detected: numericColumns,\n  imputation_log: imputationLog\n};\n\n// 7. Return cleaned rows\nreturn deduplicatedRows.map(row => ({\n  json: row\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        176
+      ],
+      "id": "e69206b3-1661-43c7-ba01-dddebffaadc7",
+      "name": "Clean Data"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1424,
+        192
+      ],
+      "id": "7bc2a265-daa9-4838-8813-cc7265c28cf1",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const analysisItem = items.find(item => item.json.row_count !== undefined);\nconst aiItem = items.find(item => item.json.output !== undefined);\n\nconst data = analysisItem.json;\nconst aiOutput = aiItem.json.output;\n\nfunction sectionFromObject(obj) {\n  return JSON.stringify(obj, null, 2);\n}\n\nconst report = `\n# Automated Data Analysis Report\n\n## Dataset Overview\n\n- Rows: ${data.row_count}\n- Columns: ${data.column_count}\n- Column names: ${data.columns.join(\", \")}\n\n## Data Quality Check\n\n### Missing Values\n\n${sectionFromObject(data.missing_values)}\n\n## Numeric Summary\n\n${sectionFromObject(data.numeric_summary)}\n\n## Categorical Summary\n\n${sectionFromObject(data.categorical_summary)}\n\n## AI Executive Summary\n\n${aiOutput}\n\n## Recommended Next Steps\n\n- Review missing values and possible outliers.\n- Add correlation analysis in the next version.\n- Add visual charts in the next version.\n- Compare groups if the dataset contains useful categories.\n\nGenerated automatically with n8n.\n`;\n\nreturn [{\n  json: {\n    report_title: \"Automated Data Analysis Report\",\n    report_text: report\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        96
+      ],
+      "id": "2e08aa73-65db-4fad-a871-453e7a5ecce1",
+      "name": "Report Generator"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "report_text",
+        "options": {
+          "fileName": "auto_data_analysis_report.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1856,
+        96
+      ],
+      "id": "875ff67e-8c46-4c9d-b28d-9058436b459d",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "C:/Users/MELISA/.n8n-files/auto_data_analysis_report.md",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        2048,
+        96
+      ],
+      "id": "1a5df435-e2e6-47cf-a8d5-bbef7a4a4dd8",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const analysisItem = items.find(item => item.json.row_count !== undefined);\nconst aiItem = items.find(item => item.json.output !== undefined);\n\nconst data = analysisItem?.json || {};\nconst aiOutput = aiItem?.json?.output || \"AI insights were not available.\";\n\nfunction escapeHtml(value) {\n  return String(value ?? \"\")\n    .replaceAll(\"&\", \"&amp;\")\n    .replaceAll(\"<\", \"&lt;\")\n    .replaceAll(\">\", \"&gt;\")\n    .replaceAll('\"', \"&quot;\")\n    .replaceAll(\"'\", \"&#039;\");\n}\n\nfunction formatName(name) {\n  return String(name)\n    .replaceAll(\"_\", \" \")\n    .replace(/\\b\\w/g, c => c.toUpperCase());\n}\n\nfunction formatNumber(value) {\n  if (typeof value !== \"number\") return escapeHtml(value);\n  return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);\n}\n\nfunction markdownToHtml(text) {\n  let safe = escapeHtml(text);\n\n  safe = safe.replace(/^### (.*$)/gim, \"<h3>$1</h3>\");\n  safe = safe.replace(/^## (.*$)/gim, \"<h2>$1</h2>\");\n\n  safe = safe.replace(/\\*\\*(.*?)\\*\\*/g, (match, content) => {\n    if (content.includes(\"_\")) {\n      return `<strong>${content}</strong>`;\n    }\n    return `<h4>${content}</h4>`;\n  });\n\n  safe = safe.replace(/^\\*   (.*$)/gim, \"<li>$1</li>\");\n  safe = safe.replace(/^\\* (.*$)/gim, \"<li>$1</li>\");\n  safe = safe.replace(/\\n\\n/g, \"<br><br>\");\n\n  return safe;\n}\n\nfunction makeCategoricalCharts(categoricalSummary) {\n  let chartHtml = \"\";\n  let chartScripts = \"\";\n  let chartIndex = 0;\n\n  for (const [column, values] of Object.entries(categoricalSummary || {})) {\n    if (!Array.isArray(values) || values.length === 0) continue;\n\n    const labels = values.map(v => String(v.category));\n    const counts = values.map(v => Number(v.count));\n    const safeColumnName = formatName(column);\n\n    chartHtml += `\n      <section>\n        <h2>${safeColumnName} Distribution</h2>\n        <div class=\"dual-chart-grid\">\n          <div class=\"chart-card\">\n            <h3>Sample Distribution</h3>\n            <div class=\"chart-wrap small-chart\">\n              <canvas id=\"catBarChart${chartIndex}\"></canvas>\n            </div>\n          </div>\n\n          <div class=\"chart-card\">\n            <h3>Category Share</h3>\n            <div class=\"chart-wrap small-chart\">\n              <canvas id=\"catPieChart${chartIndex}\"></canvas>\n            </div>\n          </div>\n        </div>\n      </section>\n    `;\n\n    chartScripts += `\n      new Chart(document.getElementById(\"catBarChart${chartIndex}\"), {\n        type: \"bar\",\n        data: {\n          labels: ${JSON.stringify(labels)},\n          datasets: [{\n            label: \"Count\",\n            data: ${JSON.stringify(counts)},\n            borderRadius: 8\n          }]\n        },\n        options: {\n          responsive: true,\n          maintainAspectRatio: false,\n          plugins: {\n            legend: { display: false },\n            title: {\n              display: true,\n              text: \"${safeColumnName} Count Distribution\"\n            }\n          },\n          scales: {\n            y: { beginAtZero: true }\n          }\n        }\n      });\n\n      new Chart(document.getElementById(\"catPieChart${chartIndex}\"), {\n        type: \"pie\",\n        data: {\n          labels: ${JSON.stringify(labels)},\n          datasets: [{\n            label: \"Share\",\n            data: ${JSON.stringify(counts)}\n          }]\n        },\n        options: {\n          responsive: true,\n          maintainAspectRatio: false,\n          plugins: {\n            title: {\n              display: true,\n              text: \"${safeColumnName} Percentage Share\"\n            }\n          }\n        }\n      });\n    `;\n\n    chartIndex++;\n  }\n\n  return {\n    chartHtml,\n    chartScripts\n  };\n}\n\nconst numericSummary = data.numeric_summary || {};\nconst missingValues = data.missing_values || {};\nconst categoricalSummary = data.categorical_summary || {};\nconst numericColumns = Object.keys(numericSummary);\nconst totalMissing = Object.values(missingValues).reduce((a, b) => a + b, 0);\nconst categoricalCharts = makeCategoricalCharts(categoricalSummary);\n\nconst kpiCards = Object.entries(numericSummary).map(([name, stats]) => `\n  <div class=\"kpi-card\">\n    <div class=\"kpi-label\">${formatName(name)}</div>\n    <div class=\"kpi-value\">${formatNumber(stats.mean)}</div>\n    <div class=\"kpi-sub\">Median ${formatNumber(stats.median)} · Range ${formatNumber(stats.min)}–${formatNumber(stats.max)}</div>\n  </div>\n`).join(\"\");\n\nconst numericRows = Object.entries(numericSummary).map(([name, stats]) => {\n  const range = stats.max - stats.min || 1;\n  const meanPosition = ((stats.mean - stats.min) / range) * 100;\n\n  return `\n    <tr>\n      <td>${formatName(name)}</td>\n      <td>${formatNumber(stats.count)}</td>\n      <td>${formatNumber(stats.mean)}</td>\n      <td>${formatNumber(stats.median)}</td>\n      <td>${formatNumber(stats.min)}</td>\n      <td>${formatNumber(stats.max)}</td>\n      <td>\n        <div class=\"range-bar\">\n          <div class=\"range-dot\" style=\"left:${meanPosition}%\"></div>\n        </div>\n      </td>\n    </tr>\n  `;\n}).join(\"\");\n\nconst missingRows = Object.entries(missingValues).map(([name, count]) => `\n  <tr>\n    <td>${formatName(name)}</td>\n    <td>${formatNumber(count)}</td>\n    <td>${count === 0 ? \"Clean\" : \"Needs review\"}</td>\n  </tr>\n`).join(\"\");\n\nconst categoricalRows = Object.entries(categoricalSummary).map(([column, values]) => {\n  return values.map(item => `\n    <tr>\n      <td>${formatName(column)}</td>\n      <td>${escapeHtml(item.category)}</td>\n      <td>${formatNumber(item.count)}</td>\n      <td>${formatNumber(item.percentage)}%</td>\n    </tr>\n  `).join(\"\");\n}).join(\"\");\n\nconst html = `\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<title>Automated Data Analysis Report</title>\n<script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>\n\n<style>\n  * {\n    box-sizing: border-box;\n  }\n\n  body {\n    font-family: Inter, Arial, sans-serif;\n    background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 45%, #fdf2f8 100%);\n    color: #111827;\n    margin: 0;\n    padding: 40px;\n  }\n\n  .container {\n    max-width: 1180px;\n    margin: auto;\n  }\n\n  .hero {\n    background: #111827;\n    color: white;\n    border-radius: 24px;\n    padding: 36px;\n    margin-bottom: 26px;\n    box-shadow: 0 20px 45px rgba(17, 24, 39, 0.22);\n  }\n\n  .hero h1 {\n    margin: 0 0 10px;\n    font-size: 34px;\n  }\n\n  .hero p {\n    margin: 0;\n    color: #d1d5db;\n    font-size: 15px;\n  }\n\n  .badge-row {\n    display: flex;\n    gap: 12px;\n    flex-wrap: wrap;\n    margin-top: 22px;\n  }\n\n  .badge {\n    background: rgba(255,255,255,0.12);\n    border: 1px solid rgba(255,255,255,0.18);\n    border-radius: 999px;\n    padding: 9px 14px;\n    font-size: 13px;\n  }\n\n  .grid {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));\n    gap: 18px;\n    margin-bottom: 26px;\n  }\n\n  .kpi-card, section {\n    background: rgba(255,255,255,0.92);\n    border: 1px solid #e5e7eb;\n    border-radius: 20px;\n    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);\n  }\n\n  .kpi-card {\n    padding: 22px;\n  }\n\n  .kpi-label {\n    font-size: 13px;\n    color: #64748b;\n    margin-bottom: 10px;\n  }\n\n  .kpi-value {\n    font-size: 34px;\n    font-weight: 800;\n    letter-spacing: -1px;\n  }\n\n  .kpi-sub {\n    margin-top: 8px;\n    font-size: 12px;\n    color: #64748b;\n  }\n\n  section {\n    padding: 26px;\n    margin-bottom: 24px;\n  }\n\n  h2 {\n    margin-top: 0;\n    font-size: 22px;\n  }\n\n  h3 {\n    margin-top: 24px;\n    color: #1f2937;\n  }\n\n  .health {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));\n    gap: 14px;\n  }\n\n  .health-box {\n    background: #f8fafc;\n    border-radius: 16px;\n    padding: 18px;\n    border: 1px solid #e5e7eb;\n  }\n\n  .health-number {\n    font-size: 26px;\n    font-weight: 800;\n  }\n\n  .health-label {\n    color: #64748b;\n    font-size: 13px;\n    margin-top: 4px;\n  }\n\n  table {\n    width: 100%;\n    border-collapse: collapse;\n    margin-top: 14px;\n    overflow: hidden;\n    border-radius: 12px;\n  }\n\n  th, td {\n    padding: 13px 12px;\n    border-bottom: 1px solid #e5e7eb;\n    text-align: left;\n    font-size: 14px;\n  }\n\n  th {\n    background: #f1f5f9;\n    color: #334155;\n    font-size: 12px;\n    text-transform: uppercase;\n    letter-spacing: .04em;\n  }\n\n  tr:hover td {\n    background: #f8fafc;\n  }\n\n  .range-bar {\n    height: 8px;\n    background: #e5e7eb;\n    border-radius: 999px;\n    position: relative;\n    min-width: 120px;\n  }\n\n  .range-dot {\n    width: 14px;\n    height: 14px;\n    background: #2563eb;\n    border-radius: 50%;\n    position: absolute;\n    top: -3px;\n    transform: translateX(-50%);\n  }\n\n  .chart-wrap {\n    height: 380px;\n  }\n\n  .dual-chart-grid {\n    display: grid;\n    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\n    gap: 20px;\n  }\n\n  .chart-card {\n    background: #f8fafc;\n    border: 1px solid #e5e7eb;\n    border-radius: 18px;\n    padding: 18px;\n  }\n\n  .chart-card h3 {\n    margin-top: 0;\n    font-size: 16px;\n    color: #334155;\n  }\n\n  .small-chart {\n    height: 320px;\n  }\n\n  .ai-box {\n    background: #0f172a;\n    color: #e5e7eb;\n    border-radius: 18px;\n    padding: 28px;\n    line-height: 1.5;\n    font-size: 17px;\n    text-align: justify;\n  }\n\n  .ai-box h2 {\n    color: white;\n    margin-top: 25px;\n    margin-bottom: 15px;\n  }\n\n  .ai-box h3 {\n    color: #93c5fd;\n    margin-top: 22px;\n    margin-bottom: 12px;\n  }\n\n  .ai-box h4 {\n    color: #60a5fa;\n    font-size: 20px;\n    font-weight: 700;\n    margin-top: 20px;\n    margin-bottom: 10px;\n    border-left: 4px solid #3b82f6;\n    padding-left: 10px;\n  }\n\n  .ai-box strong {\n    color: #bfdbfe;\n    font-weight: 700;\n  }\n\n  .footer {\n    color: #64748b;\n    font-size: 12px;\n    text-align: center;\n    margin-top: 30px;\n  }\n</style>\n</head>\n\n<body>\n<div class=\"container\">\n\n  <div class=\"hero\">\n    <h1>Automated Data Analysis Report</h1>\n    <p>Generated with n8n, automated data cleaning, statistical analysis, Gemini AI, and HTML reporting.</p>\n\n    <div class=\"badge-row\">\n      <div class=\"badge\">Rows: ${formatNumber(data.row_count)}</div>\n      <div class=\"badge\">Columns: ${formatNumber(data.column_count)}</div>\n      <div class=\"badge\">Missing Values: ${formatNumber(totalMissing)}</div>\n      <div class=\"badge\">Numeric Metrics: ${numericColumns.length}</div>\n      <div class=\"badge\">Categorical Variables: ${Object.keys(categoricalSummary).length}</div>\n    </div>\n  </div>\n\n  <section>\n    <h2>Dataset Overview</h2>\n    <p><strong>Columns:</strong> ${escapeHtml((data.columns || []).map(formatName).join(\", \"))}</p>\n  </section>\n\n  <div class=\"grid\">\n    ${kpiCards}\n  </div>\n\n  <section>\n    <h2>Data Health Check</h2>\n    <div class=\"health\">\n      <div class=\"health-box\">\n        <div class=\"health-number\">${formatNumber(data.row_count)}</div>\n        <div class=\"health-label\">Total rows analyzed</div>\n      </div>\n      <div class=\"health-box\">\n        <div class=\"health-number\">${formatNumber(data.column_count)}</div>\n        <div class=\"health-label\">Total columns detected</div>\n      </div>\n      <div class=\"health-box\">\n        <div class=\"health-number\">${formatNumber(totalMissing)}</div>\n        <div class=\"health-label\">Missing values found</div>\n      </div>\n      <div class=\"health-box\">\n        <div class=\"health-number\">${numericColumns.length}</div>\n        <div class=\"health-label\">Numeric metrics summarized</div>\n      </div>\n    </div>\n  </section>\n\n  <section>\n    <h2>Numeric Visual Summary</h2>\n    <div class=\"chart-wrap\">\n      <canvas id=\"meanChart\"></canvas>\n    </div>\n  </section>\n\n  ${categoricalCharts.chartHtml}\n\n  <section>\n    <h2>Numeric Summary</h2>\n    <table>\n      <thead>\n        <tr>\n          <th>Metric</th>\n          <th>Count</th>\n          <th>Mean</th>\n          <th>Median</th>\n          <th>Min</th>\n          <th>Max</th>\n          <th>Mean Position</th>\n        </tr>\n      </thead>\n      <tbody>\n        ${numericRows}\n      </tbody>\n    </table>\n  </section>\n\n  <section>\n    <h2>Missing Values</h2>\n    <table>\n      <thead>\n        <tr>\n          <th>Column</th>\n          <th>Missing Count</th>\n          <th>Status</th>\n        </tr>\n      </thead>\n      <tbody>\n        ${missingRows}\n      </tbody>\n    </table>\n  </section>\n\n  <section>\n    <h2>Categorical Summary</h2>\n    <table>\n      <thead>\n        <tr>\n          <th>Column</th>\n          <th>Category</th>\n          <th>Count</th>\n          <th>Percentage</th>\n        </tr>\n      </thead>\n      <tbody>\n        ${categoricalRows || `<tr><td colspan=\"4\">No categorical variables detected.</td></tr>`}\n      </tbody>\n    </table>\n  </section>\n\n  <section>\n    <h2>AI Analytical Insights</h2>\n    <div class=\"ai-box\">${markdownToHtml(aiOutput)}</div>\n  </section>\n\n  <div class=\"footer\">\n    Automated CSV/XLSX Data Analysis Pipeline · Built with n8n\n  </div>\n\n</div>\n\n<script>\nconst meanLabels = ${JSON.stringify(numericColumns.map(formatName))};\nconst meanValues = ${JSON.stringify(numericColumns.map(col => numericSummary[col].mean))};\n\nnew Chart(document.getElementById(\"meanChart\"), {\n  type: \"bar\",\n  data: {\n    labels: meanLabels,\n    datasets: [{\n      label: \"Mean value\",\n      data: meanValues,\n      borderRadius: 10\n    }]\n  },\n  options: {\n    responsive: true,\n    maintainAspectRatio: false,\n    plugins: {\n      legend: { display: false },\n      title: {\n        display: true,\n        text: \"Average Value by Numeric Metric\"\n      }\n    },\n    scales: {\n      y: { beginAtZero: true }\n    }\n  }\n});\n\n${categoricalCharts.chartScripts}\n</script>\n\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    html_report: html,\n    report_title: \"Automated Data Analysis HTML Report\"\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        384
+      ],
+      "id": "cea683f6-62c6-45c6-8aa5-176c725efd6d",
+      "name": "html report generator"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "html_report",
+        "options": {
+          "fileName": "auto_data_analysis_report.html"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1856,
+        384
+      ],
+      "id": "60561435-e1cf-44f2-ac33-c253c0b035c2",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "C:/Users/MELISA/.n8n-files/auto_data_analysis_report.html",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        2064,
+        384
+      ],
+      "id": "168c12fb-e468-4469-b447-6586df0f89e1",
+      "name": "Read/Write Files from Disk2"
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "C:\\Users\\MELISA\\.n8n-files\\cleaned_dataset.csv",
+        "options": {
+          "append": false
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        -48
+      ],
+      "id": "e6911c7e-eab2-4e12-b678-06a7f7e31e3b",
+      "name": "Read/Write Files from Disk3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        -48
+      ],
+      "id": "b6ec0b91-45b8-4f61-8595-7f1250670030",
+      "name": "Cleaned Dataset"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Clean Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt Builder": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Analysis": {
+      "main": [
+        [
+          {
+            "node": "Prompt Builder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Data": {
+      "main": [
+        [
+          {
+            "node": "Data Analysis",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cleaned Dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Report Generator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "html report generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report Generator": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File1": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "html report generator": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleaned Dataset": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "87429467-47c7-4710-b0fe-3167ea6ca400",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "88682d0c82c0188d2debc19b477adcc3b1af67400720c9400ca15880ed3e8f6f"
+  },
+  "nodeGroups": [],
+  "id": "jf3vCGu9UsHi7km7",
+  "tags": []
+}
