@@ -66,7 +66,7 @@
     },
     {
       "parameters": {
-        "fileSelector": "C:\\Users\\MELISA\\.n8n-files\\Customer Churn Dataset.csv",
+        "fileSelector": "C:\\Users\\Path\\.n8n-files\\Customer Churn Dataset.csv",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
@@ -192,9 +192,6 @@
       "id": "b126e999-5f8e-48f9-8305-99a065197586",
       "name": "Google Gemini Chat Model",
       "credentials": {
-        "googlePalmApi": {
-          "id": "PQNFe9udjuLxEwe7",
-          "name": "Google Gemini(PaLM) Api account"
         }
       }
     },
@@ -281,7 +278,7 @@
     {
       "parameters": {
         "operation": "write",
-        "fileName": "C:/Users/MELISA/.n8n-files/auto_data_analysis_report.md",
+        "fileName": "C:/Users/Path/.n8n-files/auto_data_analysis_report.md",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
@@ -326,7 +323,7 @@
     {
       "parameters": {
         "operation": "write",
-        "fileName": "C:/Users/MELISA/.n8n-files/auto_data_analysis_report.html",
+        "fileName": "C:/Users/Path/.n8n-files/auto_data_analysis_report.html",
         "options": {}
       },
       "type": "n8n-nodes-base.readWriteFile",
@@ -341,7 +338,7 @@
     {
       "parameters": {
         "operation": "write",
-        "fileName": "C:\\Users\\MELISA\\.n8n-files\\cleaned_dataset.csv",
+        "fileName": "C:\\Users\\Path\\.n8n-files\\cleaned_dataset.csv",
         "options": {
           "append": false
         }
