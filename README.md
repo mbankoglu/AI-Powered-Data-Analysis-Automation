@@ -8,8 +8,7 @@ The goal of this project was to reduce time spent on repetitive data preparation
 https://mbankoglu.github.io/AI-Powered-Data-Analysis-Automation/auto_data_analysis_report.html
 
 🔗 Data Analysis Automation Workflow:
-[Screenshots/n8n workflow.png](https://github.com/mbankoglu/AI-Powered-Data-Analysis-Automation/blob/fb89f6f094e6035d3e9260d9df3714f3058f9581/Screenshots/n8n%20workflow.png)
-
+https://github.com/mbankoglu/AI-Powered-Data-Analysis-Automation/blob/90fb5abd6b6e34f22ccc9a1a8851b63f6ab383c6/Screenshots/n8n-workflow
 Tools:
 - n8n
 - Gemini AI
